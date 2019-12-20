@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dados arduino</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="Chart.js"></script>
+    <style>
+        .divCabecalho{
+            position: fixed;
+            background-color: white;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+        }
+        .divGraficos{
+            margin-top: 30px;
+        }
+        .divGrafico{
+            width: 47%;
+            display: inline-block;
+        }
+        .divValores, .divTexto{
+            display: inline-block;
+        }
+        .divTexto{
+            float: right;
+            margin-right: 0;
+            text-align: right;
+        }
+        .texto{
+            color: red;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="divCabecalho">
+        <div class="divValores">
+                <table border="2" class="tabela">
+                    <tr>
+                        <td><label><center>Temperatura</center></label></td>
+                        <td><label><center>Pressão</center></label></td>
+                        <td><label><center>Umidade</center></label></td>
+                        <td><label><center>Altitude</center></label></td>
+                    </tr>
+                <tr>
+                    <td><label><center id="temp"></center></label></td>
+                    <td><label><center id="press"></center></label></td>
+                    <td><label><center id="umid"></center></label></td>
+                    <td><label><center id="alt"></center></label></td>
+                </tr>
+            </table>
+        </div>
+        <div class="divTexto">
+            <label class="texto">Desenvolvido pelo curso Técnico em Informática<br>Desenvolvido por Gustavo Moretti Oliveira</label>
+        </div>
+    </div>
+    <div class="divGraficos">
+        <div class="divGrafico">
+            <canvas id="temperatura" width="100" height="50"></canvas>
+        </div>
+        <div class="divGrafico">
+            <canvas id="pressao" width="100" height="50"></canvas>
+        </div>
+        <div class="divGrafico">
+            <canvas id="umidade" width="100" height="50"></canvas>
+        </div>
+        <div class="divGrafico">
+            <canvas id="altitude" width="100" height="50"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let tempe = document.getElementById('temperatura');
+        let pressao = document.getElementById('pressao');
+        let umidade = document.getElementById('umidade');
+        let altitude = document.getElementById('altitude');
+        let contador = 0;
+
+        let temp = new Chart(tempe, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'TEMPERATURA POR ALTITUDE',
+                    borderColor: 'rgb(245,222,179)',
+                    borderWidth: 1,
+                    data: []
+                }]
+            },
+            options: {
+                title:{
+                    display: true,
+                    fontSize: 20
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                labels: {
+                    fontSize: 20
+                }
+            }
+        });
+
+        let press = new Chart(pressao, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'PRESSÃO POR ALTITUDE',
+                    borderColor: 'rgb(245,222,179)',
+                    borderWidth: 1,
+                    data: []
+                }]
+            },
+            options: {
+                title:{
+                    display: true,
+                    fontSize: 20
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                labels: {
+                    fontSize: 20
+                }
+            }
+        });
+
+        let umid = new Chart(umidade, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'UMIDADE POR ALTITUDE',
+                    borderColor: 'rgb(245,222,179)',
+                    borderWidth: 1,
+                    data: []
+                }]
+            },
+            options: {
+                title:{
+                    display: true,
+                    fontSize: 20
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                labels: {
+                    fontSize: 20
+                }
+            }
+        });
+
+        let alt = new Chart(altitude, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'ALTITUDE POR TEMPO',
+                    borderColor: 'rgb(245,222,179)',
+                    borderWidth: 1,
+                    data: []
+                }]
+            },
+            options: {
+                title:{
+                    display: true,
+                    fontSize: 20
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                labels: {
+                    fontSize: 20
+                }
+            }
+        });
+
+        var socket = io();
+        socket.on("dadoArduino", function (dado) {
+            let infoBroke = dado.valor.split(',');
+
+            let horario = infoBroke[0]
+            let umidade = infoBroke[1];
+            let pressao = infoBroke[2];
+            let altitude = infoBroke[3];
+            let temperatura = infoBroke[4];
+            
+            temp.data.labels.push(altitude);
+            temp.data.datasets.forEach((dataset) => {
+                dataset.data.push(temperatura);
+            });
+
+            press.data.labels.push(altitude);
+            press.data.datasets.forEach((dataset) => {
+                dataset.data.push(pressao);
+            });
+
+            umid.data.labels.push(altitude);
+            umid.data.datasets.forEach((dataset) => {
+                dataset.data.push(umidade);
+            });
+
+            alt.data.labels.push(horario);
+            alt.data.datasets.forEach((dataset) => {
+                dataset.data.push(altitude);
+            });
+            
+            let lUmid = document.getElementById('umid').innerHTML = umidade;
+            let lTemp = document.getElementById('temp').innerHTML = temperatura;
+            let lPress = document.getElementById('press').innerHTML = pressao;
+            let lAlt = document.getElementById('alt').innerHTML = altitude;
+
+            temp.update();
+            press.update();
+            umid.update();  
+            alt.update();
+        });
+    </script>
+</body>
+
+</html>
