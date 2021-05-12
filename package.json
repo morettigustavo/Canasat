@@ -8,7 +8,7 @@
   "author": "Gustavo Moretti",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "express": "^4.17.1",
     "serialport": "^8.0.5",
     "socket.io": "^2.4.0"
